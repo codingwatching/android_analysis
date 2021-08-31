@@ -5,7 +5,7 @@
 #include "printf_args_helper.h"
 #include "route_func.h"
 
-//参数长度计算有bug,未修复~
+
 
 #if defined(__arm64__) || defined(__aarch64__)
 
@@ -26,11 +26,11 @@ printf_java_func_args(JNIEnv *env, uint64_t &offset, int64_t x0, int64_t x1, int
                 args_value = printf_args_helper::get_args<uint32_t>(offset, x0, x1, x2, x3, x4, x5,
                                                                     x6, x7,
                                                                     pcontext, stack_args);
-                if (args_index < REG_COUNT) {
+//                if (args_index < REG_COUNT) {
                     offset += 8;
-                } else {
-                    offset += 4;
-                }
+//                } else {
+//                    offset += 4;
+//                }
                 break;
             case 8:
                 args_value = printf_args_helper::get_args<uint64_t>(offset, x0, x1, x2, x3, x4, x5,
@@ -42,11 +42,11 @@ printf_java_func_args(JNIEnv *env, uint64_t &offset, int64_t x0, int64_t x1, int
                 args_value = printf_args_helper::get_args<uint32_t>(offset, x0, x1, x2, x3, x4, x5,
                                                                     x6, x7,
                                                                     pcontext, stack_args);
-                if (args_index < REG_COUNT) {
+//                if (args_index < REG_COUNT) {
                     offset += 8;
-                } else {
-                    offset += 4;
-                }
+//                } else {
+//                    offset += 4;
+//                }
                 break;
         }
         args_index += 1;

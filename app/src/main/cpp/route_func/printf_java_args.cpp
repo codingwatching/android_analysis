@@ -127,7 +127,7 @@ DECLARE_PRINTF_FUNC(in_java_parse) {
     }
 
     jmethodID jtoString = env->GetMethodID(cJSONObject, "toString", "()Ljava/lang/String;");
-    jstring jret = (jstring) env->CallObjectMethod(obj_json, jtoString);
+    auto jret = (jstring) env->CallObjectMethod(obj_json, jtoString);
     if (clean_exception(env)) {
         env->DeleteLocalRef(obj_json);
         return "printf this object occur a exception! from toString";

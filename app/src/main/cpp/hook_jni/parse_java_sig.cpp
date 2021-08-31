@@ -20,7 +20,7 @@ bool is_java_base_args_sig(char sig) {
     }
 }
 
-bool split_args_sig(const string &args_sig, vector <string> &ret_sig) {
+bool split_args_sig(const string &args_sig, vector<string> &ret_sig) {
     //    Ljava_lang_String;[[I
     char *psig = (char *) args_sig.c_str();
     int p = 0;
@@ -98,7 +98,7 @@ bool split_args_sig(const string &args_sig, vector <string> &ret_sig) {
 }
 
 bool parse_java_signature(const char *signature,
-                          vector <string> &args_type,
+                          vector<string> &args_type,
                           string &ret_type) {
     string cpy_signature = signature;
     int p1 = cpy_signature.find('(');
@@ -119,7 +119,7 @@ bool parse_java_signature(const char *signature,
 bool parse_java_lang_name(const char *lang_name,
                           string &class_name,
                           string &method_name,
-                          vector <string> &args_type,
+                          vector<string> &args_type,
                           bool &is_override) {
 //    Java_com_hook_native_1hook_1helper_junregister_1file_1hook
 //    Java.com.hook.native_hook_helper.junregister_file_hook
@@ -225,7 +225,7 @@ string conv_java_type_2_sig_type(const string &type_name) {
 bool parse_java_pretty_name(const string &decl,
                             string &class_name,
                             string &method_name,
-                            vector <string> &args_type,
+                            vector<string> &args_type,
                             string &ret_type) {
     if (count(decl.begin(), decl.end(), ' ') < 1) {
         return false;
@@ -283,7 +283,7 @@ bool parse_java_pretty_name(const string &decl,
     return true;
 }
 
-args_type_t conv_sig_2_args_type(const string& sig) {
+args_type_t conv_sig_2_args_type(const string &sig) {
     args_type_t ret;
     ret.sig = sig;
     ret.inner_base_type = sig;
@@ -291,8 +291,7 @@ args_type_t conv_sig_2_args_type(const string& sig) {
         ret.array_dim = count(ret.inner_base_type.begin(), ret.inner_base_type.end(), '.');
         replace_all(ret.inner_base_type, "[", "");
     }
-    if (sig[0] == 'L')
-    {
+    if (sig[0] == 'L') {
         ret.inner_base_type = ret.inner_base_type.substr(1, ret.inner_base_type.length() - 2);
         replace_all(ret.inner_base_type, "_", "_1");
         replace_all(ret.inner_base_type, "/", "_");

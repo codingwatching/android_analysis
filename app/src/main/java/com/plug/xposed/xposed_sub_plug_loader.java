@@ -11,6 +11,7 @@ import com.plug.xposed.base.xposed_plug_common;
 import com.plug.xposed.tool.tool_inject_jar;
 import com.plug.xposed.tool.tool_okhttp_analyse;
 import com.plug.xposed.tool.tool_pass_root;
+import com.plug.xposed.tool.tool_socket_analyse;
 import com.plug.xposed.tool.tool_sslunpinning;
 import com.units.log;
 
@@ -33,15 +34,14 @@ public class xposed_sub_plug_loader extends xposed_plug_base implements IXposedH
         if (config == null) {
             return;
         }
+        tools.add(new tool_inject_jar(config, lpparam));
+
         if (lpparam.packageName.contains(config.analyse_packet_name)) {
             log.i("analyse inject process " + lpparam.processName + "!");
 //            tools.add(new tool_okhttp_analyse(config, lpparam));
-//            analyses.add(new bugly_analyse(config, lpparam));
 //            tools.add(new tool_sslunpinning(config, lpparam));
-//            tools.add(new tool_inject_jar(config, lpparam));
-//            tools.add(new sub_plug_txsd(config, lpparam));
-            tools.add(new tool_pass_root(config, lpparam));
-
+//            tools.add(new tool_socket_analyse(config, lpparam));
+//            tools.add(new tool_pass_root(config, lpparam));
 //            XposedHelpers.findAndHookMethod(
 //                    "com.stub.StubApp",
 //                    lpparam.classLoader,
@@ -62,7 +62,6 @@ public class xposed_sub_plug_loader extends xposed_plug_base implements IXposedH
 //                        }
 //                    }
 //            );
-
 //            XposedHelpers.findAndHookMethod(ClassLoader.class, "loadClass", String.class, new XC_MethodHook() {
 //                @Override
 //                protected void afterHookedMethod(MethodHookParam param) {
@@ -79,26 +78,28 @@ public class xposed_sub_plug_loader extends xposed_plug_base implements IXposedH
 //                }
 //            });
 
-            Class ActivityThread = XposedHelpers.findClass("android.app.ActivityThread", lpparam.classLoader);
-            XposedBridge.hookAllMethods(ActivityThread, "performLaunchActivity", new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    super.afterHookedMethod(param);
-                    Application mInitialApplication = (Application) XposedHelpers.getObjectField(param.thisObject, "mInitialApplication");
-                    ClassLoader class_loader = (ClassLoader) XposedHelpers.callMethod(mInitialApplication, "getClassLoader");
-                    log.i("find class loader: " + class_loader.toString());
-                    init_plug(xposed_plug_common.plug_name.plug_name_sub_plug_loader, mInitialApplication.getApplicationContext());
-                    for (sub_plug_base analyse : tools) {
-                        try {
-                            analyse.on_application_class_loader(mInitialApplication, class_loader);
-                            log.i("on_application_class_loader " + analyse.name);
-                        } catch (Exception | Error e) {
-                            log.i("on_application_class_loader error!" + e);
-                        }
-                    }
-                }
-            });
 
         }
+
+
+        Class ActivityThread = XposedHelpers.findClass("android.app.ActivityThread", lpparam.classLoader);
+        XposedBridge.hookAllMethods(ActivityThread, "performLaunchActivity", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+                Application mInitialApplication = (Application) XposedHelpers.getObjectField(param.thisObject, "mInitialApplication");
+                ClassLoader class_loader = (ClassLoader) XposedHelpers.callMethod(mInitialApplication, "getClassLoader");
+                log.i("find class loader: " + class_loader.toString());
+                init_plug(xposed_plug_common.plug_name.plug_name_sub_plug_loader, mInitialApplication.getApplicationContext());
+                for (sub_plug_base analyse : tools) {
+                    try {
+                        analyse.on_application_class_loader(mInitialApplication, class_loader);
+                        log.i("on_application_class_loader " + analyse.name);
+                    } catch (Exception | Error e) {
+                        log.i("on_application_class_loader error!" + e);
+                    }
+                }
+            }
+        });
     }
 }

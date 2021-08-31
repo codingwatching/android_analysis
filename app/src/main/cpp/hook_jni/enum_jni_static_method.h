@@ -18,8 +18,11 @@ struct native_method_info {
     void *origin_call;
 //    string args_sig;
     string ret_type;
+    string sym_name;
 };
 
-vector<native_method_info> enum_static_jni_func(JNIEnv *env, const string &reg_module_name);
+vector<native_method_info> enum_static_jni_func(JNIEnv *env, elf_info *tar_module);
 
-void *get_jni_onload_ptr(const string &reg_module_name);
+void *get_jni_onload_ptr(elf_info *tar_module);
+
+void update_method_info(JNIEnv *env, native_method_info *info);

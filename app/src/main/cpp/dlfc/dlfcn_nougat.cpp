@@ -32,7 +32,7 @@ int fake_dlclose(elf_info *elf_info) {
 elf_info *fake_dlopen(const char *libpath, int flags) {
     FILE *maps;
     char buff[256];
-    elf_info *elf_info = 0;
+    elf_info *elf_info = nullptr;
     off_t load_addr, end_addr, size;
     int k, fd = -1, found = 0;
     char *shoff;

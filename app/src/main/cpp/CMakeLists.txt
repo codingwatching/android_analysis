@@ -22,7 +22,13 @@ enable_language(ASM)
 #        ${DobbyHome}/builtin-plugin/SymbolResolver
 #        ${DobbyHome}/external/logging
 #)
-if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a"  OR ${CMAKE_ANDROID_ARCH_ABI} STREQUAL "arm64-v8a")
+find_library( # Sets the name of the path variable.
+        log-lib
+        # Specifies the name of the NDK library that
+        # you want CMake to locate.
+        log)
+
+if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a" OR ${CMAKE_ANDROID_ARCH_ABI} STREQUAL "arm64-v8a")
     # arch prefix
     if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "arm64-v8a")
         file(GLOB native_hook_asm_src
@@ -41,6 +47,10 @@ if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a"  OR ${CMAKE_ANDROID_ARCH_AB
             "utils/*.h"
             "utils/*.cpp"
             "utils/*.c"
+
+            "export_jni/*.h"
+            "export_jni/*.cpp"
+            "export_jni/*.c"
 
             "xposed/*.h"
             "xposed/*.cpp"
@@ -89,11 +99,6 @@ if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a"  OR ${CMAKE_ANDROID_ARCH_AB
     add_subdirectory(${DobbyHome} dobby)
     target_link_libraries(native_hook dobby)
 
-    find_library( # Sets the name of the path variable.
-            log-lib
-            # Specifies the name of the NDK library that
-            # you want CMake to locate.
-            log)
 
     # Specifies libraries CMake should link to your target library. You
     # can link multiple libraries, such as libraries you define in this
@@ -106,3 +111,32 @@ if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a"  OR ${CMAKE_ANDROID_ARCH_AB
             # included in the NDK.
             ${log-lib})
 endif ()
+
+
+file(GLOB test_src
+        "test/*.h"
+        "test/*.cpp"
+        "test/*.c"
+
+        "dlfc/*.h"
+        "dlfc/*.cpp"
+        "dlfc/*.c"
+
+        "utils/*.h"
+        "utils/*.cpp"
+        "utils/*.c"
+
+        )
+add_library( # Sets the name of the library.
+        test_jni
+        # Sets the library as a shared library.
+        SHARED
+        # Provides a relative path to your source file(s).
+        ${test_src}
+      )
+target_link_libraries( # Specifies the target library.
+        test_jni
+
+        # Links the target library to the log library
+        # included in the NDK.
+        ${log-lib})
