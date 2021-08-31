@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 
 import com.plug.base.plug_config;
-import com.plug.xposed.app_sub_plug.sub_plug_txsd;
 import com.plug.xposed.base.sub_plug_base;
 import com.plug.xposed.base.xposed_plug_base;
 import com.plug.xposed.base.xposed_plug_common;
