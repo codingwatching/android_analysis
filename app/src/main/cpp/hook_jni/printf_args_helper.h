@@ -3,7 +3,7 @@
 #include <vector>
 #include <stdint.h>
 
-#include "route_func.h"
+#include "../route_func/route_func.h"
 
 using std::vector;
 using std::string;
@@ -46,12 +46,6 @@ public:
 };
 
 void
-printf_java_func_args_end_with_va_list(JNIEnv *env, uint64_t offset, int64_t x0, int64_t x1,
-                                       int64_t x2, int64_t x3, int64_t x4, int64_t x5, int64_t x6,
-                                       int64_t x7, void *pcontext, void *stack_args,
-                                       const vector<string> &args_type);
-
-void
 printf_java_func_args_end_with_array(JNIEnv *env, uint64_t offset, int64_t x0, int64_t x1,
                                      int64_t x2, int64_t x3, int64_t x4, int64_t x5, int64_t x6,
                                      int64_t x7, void *pcontext, void *stack_args,
@@ -90,11 +84,6 @@ public:
         }
     }
 };
-
-void
-printf_java_func_args_end_with_va_list(JNIEnv *env, uint32_t offset, uint32_t r0, uint32_t r1,
-                                       uint32_t r2, uint32_t r3, void *pcontext, void *stack_args,
-                                       const vector <string> &args_type);
 
 void
 printf_java_func_args_end_with_array(JNIEnv *env, uint32_t offset, uint32_t r0, uint32_t r1,

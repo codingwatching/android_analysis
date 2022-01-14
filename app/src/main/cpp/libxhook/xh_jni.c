@@ -57,4 +57,4 @@ JNIEXPORT void JNI_API_DEF(enableSigSegvProtection)(JNIEnv *env, jobject obj, jb
 
     xhook_enable_sigsegv_protection(flag ? 1 : 0);
 }
- 
+

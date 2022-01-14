@@ -43,6 +43,7 @@ public class tool_inject_jar extends sub_plug_base {
                     null,
                     class_loader);
 
+            dexClassLoader.loadClass("com.google.gson.Gson");
             dexClassLoader.loadClass("com.plug.export.frida_helper");
             log.i("inject jar success!");
         } catch (Exception e) {

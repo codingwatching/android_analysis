@@ -42,7 +42,8 @@ using new_pfunc_t = int64_t(*)(int64_t x0,
                                int64_t x6,
                                int64_t x7,
                                void *context,
-                               void *stack_args);
+                               void *stack_args,
+                               void *ret_point);
 
 #else
 #define SET_MEMORY_PROTECT(addr, protect) mprotect((void *)  ALIGN_FLOOR(uint32_t, addr, sysconf(_SC_PAGESIZE)), sysconf(_SC_PAGESIZE),protect)

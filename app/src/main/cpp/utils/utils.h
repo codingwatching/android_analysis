@@ -20,3 +20,12 @@ struct auto_lock {
 };
 
 string get_uuid();
+
+
+int64_t get_time();
+
+string time_to_string(int64_t tick);
+
+int64_t string_to_time(const string &time_str, const string &fmt);
+
+string format_string(const string &fmt, ...);

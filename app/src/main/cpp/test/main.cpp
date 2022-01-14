@@ -46,21 +46,35 @@ Java_com_caller_test_1jni_test_1args3(JNIEnv *env, jclass clazz, jint a1, jint a
                                       jint a4) {
     // TODO: implement test_args3()
     JNIEnv *env2;
-    gJavaVM->AttachCurrentThread(&env2, nullptr);
+//    gJavaVM->AttachCurrentThread(&env2, nullptr);
+    Java_com_caller_test_1jni_test_1args2(env, 0, 1, 2, 3, 4, 5, 6, 7, 8);
     return 1;
 }
+
+extern "C"
+JNIEXPORT
+int testasd(int a1, int a2, int a3, ...) {
+    va_list asd;
+    va_start(asd, a3);
+    int ret;
+    ret = va_arg(asd, int);
+    va_end(asd);
+    return ret;
+}
+
 
 extern "C"
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;
     gJavaVM = vm;
     vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION_1_4);
+    testasd(1, 2, 3, 4, 5);
     return JNI_VERSION_1_4;
 }
 
 extern "C" void test() {
     JNIEnv *env;
     gJavaVM->GetEnv((void **) &env, JNI_VERSION_1_4);
-    Java_com_caller_test_1jni_test_1args3(env, 0, 1, 2, 3, 4);
+//    Java_com_caller_test_1jni_test_1args3(env, 0, 1, 2, 3, 4);
     Java_com_caller_test_1jni_test_1args2(env, 0, 1, 2, 3, 4, 5, 6, 7, 8);
 }

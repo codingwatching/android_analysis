@@ -227,6 +227,7 @@ bool parse_java_pretty_name(const string &decl,
                             string &method_name,
                             vector<string> &args_type,
                             string &ret_type) {
+//    loge("decl %s", decl.c_str());
     if (count(decl.begin(), decl.end(), ' ') < 1) {
         return false;
     }
@@ -243,6 +244,7 @@ bool parse_java_pretty_name(const string &decl,
         return false;
     }
     string args = decl.substr(start + 1, end - start - 1);
+    replace_all(args, " ", "");
     args_type = string_split(args, ",");
     for (auto &item : args_type) {
         item = conv_java_type_2_sig_type(item);

@@ -20,7 +20,7 @@ void push_origin_env(JNIEnv *origin_env) {
     pid_t tid = gettid();
     g_jnienv_lock.lock();
     if (g_map_jnievn.find(tid) != g_map_jnievn.end()) {
-        logi("push_origin_env tid had in g_map_jnievn! tid %d origin_env %p", tid, origin_env);
+//        logi("push_origin_env tid had in g_map_jnievn! tid %d origin_env %p", tid, origin_env);
     }
     g_map_jnievn.insert(pair<pid_t, JNIEnv *>(tid, origin_env));
     g_jnienv_lock.unlock();

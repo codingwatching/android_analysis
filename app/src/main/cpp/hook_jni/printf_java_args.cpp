@@ -193,7 +193,7 @@ struct format_info_t {
 };
 
 
-map <string, format_info_t> map_args_type_2_format_func = {
+map<string, format_info_t> map_args_type_2_format_func = {
         {"V",                  {GET_FORMAT_FUNC(void),             0,                 false}},
         {"Z",                  {GET_FORMAT_FUNC(bool),             sizeof(jint),      false}},
         {"B",                  {GET_FORMAT_FUNC(byte),             sizeof(jint),      false}},
@@ -266,14 +266,17 @@ string format_args(JNIEnv *env, const string &args_type, uint64_t obj) {
     auto item = map_args_type_2_format_func.find(cpy_sig);
     if (env != nullptr) {
         if (item != map_args_type_2_format_func.end()) {
+//            loge("format_args: args type %s", args_type.c_str());
             return item->second.format_func(env, obj, args_type);
         }
 
         if (cpy_sig[0] == '[' || cpy_sig[0] == 'L') {
+//            loge("format_args in java: args type %s", args_type.c_str());
             return GET_FORMAT_FUNC(in_java_parse)(env, obj, args_type);
         }
     } else {
         if (item != map_args_type_2_format_func.end() && !item->second.need_jnienv) {
+//            loge("format_args: args type %s", args_type.c_str());
             return item->second.format_func(env, obj, args_type);
         }
     }

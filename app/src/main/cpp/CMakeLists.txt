@@ -9,6 +9,8 @@ cmake_minimum_required(VERSION 3.10.2)
 
 project("local_caller")
 enable_language(ASM)
+
+add_definitions (-Wno-format-security)
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -77,6 +79,9 @@ if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a" OR ${CMAKE_ANDROID_ARCH_ABI
             "json/*.cpp"
             "json/*.inl"
 
+            "system_hook/*.h"
+            "system_hook/*.cpp"
+
             "*.h"
             "*.cpp"
             "*.c"
@@ -125,15 +130,16 @@ file(GLOB test_src
         "utils/*.h"
         "utils/*.cpp"
         "utils/*.c"
-
         )
+
 add_library( # Sets the name of the library.
         test_jni
         # Sets the library as a shared library.
         SHARED
         # Provides a relative path to your source file(s).
         ${test_src}
-      )
+        )
+
 target_link_libraries( # Specifies the target library.
         test_jni
 

@@ -1,9 +1,9 @@
 #include <dlfcn.h>
 #include "../utils/log.h"
-#include "../route_func/printf_java_args.h"
-#include "../route_func/printf_args_helper.h"
+#include "../hook_jni/printf_java_args.h"
+#include "../hook_jni/printf_args_helper.h"
 #include "../route_func/route_func.h"
-#include "../route_func/methods_info.h"
+#include "../hook_jni/methods_info.h"
 #include "../dlfc/dlfcn_nougat.h"
 #include "../libxhook/xhook.h"
 
@@ -18,7 +18,8 @@ int64_t hook_libc_func(int64_t x0,
                        int64_t x6,
                        int64_t x7,
                        void *context,
-                       void *stack_args)
+                       void *stack_args,
+                       void *ret_point)
 #else
 
 uint32_t hook_libc_func(uint32_t r0,
@@ -30,7 +31,9 @@ uint32_t hook_libc_func(uint32_t r0,
 #endif
 {
     method_info_t *pcontext = (method_info_t *) context;
-    logd("hook libc methods %s", pcontext->name.c_str());
+    logd("hook libc methods %s, ret-> %p", pcontext->name.c_str(),
+         (void *) ((int64_t) ret_point));//    - (int64_t) g_tar_module->load_addr
+
     int stack_args_count = 0;
     if (pcontext->index <= 6) {
         const char *pfmt;

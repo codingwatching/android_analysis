@@ -7,6 +7,7 @@
 
 using std::string;
 using std::fstream;
+extern char methods_json[];
 
 method_info_t *jni_get_value_method_info;
 method_info_t *jni_set_value_method_info;
@@ -39,16 +40,16 @@ void parse_method_info_json(method_info_t **info, const Json::Value &json) {
 }
 
 void init_jni_method_info() {
-    string json_file_path = "/sdcard/jni_methods_info.json";
+//    string json_file_path = "/sdcard/jni_methods_info.json";
+//    fstream fjson;
+//    fjson.open(json_file_path);
+//    if (!fjson.is_open()) {
+//        logi("init_jni_method_info open json file %s error!!!!!", json_file_path.c_str());
+//        return;
+//    }
     Json::Value json;
-    fstream fjson;
-    fjson.open(json_file_path);
-    if (!fjson.is_open()) {
-        logi("init_jni_method_info open json file %s error!!!!!", json_file_path.c_str());
-        return;
-    }
     Json::Reader reader;
-    if (!reader.parse(fjson, json, false)) {
+    if (!reader.parse(methods_json, json, false)) {
         logi("%s", "init_jni_method_info error!!!!!");
         return;
     }

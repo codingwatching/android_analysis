@@ -8,9 +8,9 @@
 #include "../utils/log.h"
 #include "../utils/jni_helper.h"
 #include "../route_func/route_func.h"
-#include "../route_func/methods_info.h"
-#include "../route_func/printf_java_args.h"
-#include "../route_func/printf_args_helper.h"
+#include "methods_info.h"
+#include "printf_java_args.h"
+#include "printf_args_helper.h"
 #include "jni_env_hook.h"
 #include "parse_java_sig.h"
 #include "global_code.h"
@@ -31,7 +31,8 @@ int64_t hook_call_methods(int64_t x0,
                           int64_t x6,
                           int64_t x7,
                           void *context,
-                          void *stack_args)
+                          void *stack_args,
+                          void *ret_point)
 #else
 
 uint32_t hook_call_methods(uint32_t r0,
@@ -43,7 +44,10 @@ uint32_t hook_call_methods(uint32_t r0,
 #endif
 {
     auto *pcontext = (method_info_t *) context;
-    logd("hook jni call methods %s, args %d", pcontext->name.c_str(), pcontext->args_type.size());
+    logi("hook jni call methods %s, args %ld, ret-> %p", pcontext->name.c_str(),
+         pcontext->args_type.size(),
+         (void *) ((int64_t) ret_point - (int64_t) g_tar_module->load_addr));
+
     JNIEnv *origin_env = get_origin_env();
 
 #if defined(__arm64__) || defined(__aarch64__)
@@ -68,13 +72,13 @@ uint32_t hook_call_methods(uint32_t r0,
     } else if (pcontext->index <= 143) {
         method_id = (jmethodID) REG_ID(2);
     } else {
-        logd("hook jni occour error!!! %s", pcontext->name.c_str());
+        loge("hook jni occour error!!! %s", pcontext->name.c_str());
         return 0;
     }
 
     string method_pretty_name = get_method_name(method_id, method_name_type::pretty_name);
     if (method_pretty_name.empty()) {
-        logd("%s", "hook jni get_method_name occour error!!!");
+        loge("%s", "hook jni get_method_name occour error!!!");
         return 0;
     }
 
@@ -83,7 +87,7 @@ uint32_t hook_call_methods(uint32_t r0,
     vector<string> args_type;
     string ret_type;
     if (!parse_java_pretty_name(method_pretty_name, class_name, method_name, args_type, ret_type)) {
-        logd("%s", "hook jni parse_java_pretty_name occour error!!!");
+        loge("%s", "hook jni parse_java_pretty_name occour error!!!");
         return 0;
     }
 
@@ -101,12 +105,9 @@ uint32_t hook_call_methods(uint32_t r0,
     logd("                            java method %s", method_pretty_name.c_str());
 #if defined(__arm64__) || defined(__aarch64__)
 #if IS_PRINT_PARAMS
-    if (mod_index == 0) {
+    if (mod_index == 0 || mod_index == 1) {
         printf_java_func_args(origin_env, java_args_offset, x0, x1, x2, x3, x4, x5, x6, x7,
                               pcontext, stack_args, args_type, args_type.size());
-    } else if (mod_index == 1) {
-        printf_java_func_args_end_with_va_list(origin_env, java_args_offset, x0, x1, x2, x3, x4, x5,
-                                               x6, x7, pcontext, stack_args, args_type);
     } else {
         printf_java_func_args_end_with_array(origin_env, java_args_offset, x0, x1, x2, x3, x4, x5,
                                              x6, x7, pcontext, stack_args, args_type);
@@ -119,13 +120,9 @@ uint32_t hook_call_methods(uint32_t r0,
 
 #else
 #if IS_PRINT_PARAMS
-    if (mod_index == 0) {
+    if (mod_index == 0||mod_index == 1) {
         printf_java_func_args(origin_env, java_args_offset, REG_ID(0), REG_ID(1), REG_ID(2),
                               REG_ID(3), pcontext, stack_args, args_type, args_type.size());
-    } else if (mod_index == 1) {
-        printf_java_func_args_end_with_va_list(origin_env, java_args_offset, REG_ID(0), REG_ID(1),
-                                               REG_ID(2), REG_ID(3), pcontext, stack_args,
-                                               args_type);
     } else {
         printf_java_func_args_end_with_array(origin_env, java_args_offset, REG_ID(0), REG_ID(1),
                                              REG_ID(2), REG_ID(3), pcontext, stack_args, args_type);
@@ -136,7 +133,7 @@ uint32_t hook_call_methods(uint32_t r0,
 #endif
 //    logd("%s", "---------end----------");
 #if IS_PRINT_PARAMS
-    logd("                            ret: %s",
+    logi("                            ret: %s",
          format_args(origin_env, ret_type, ret).c_str());
 #endif
     return ret;
@@ -155,7 +152,8 @@ int64_t hook_other_methods(int64_t x0,
                            int64_t x6,
                            int64_t x7,
                            void *context,
-                           void *stack_args)
+                           void *stack_args,
+                           void *ret_point)
 #else
 
 uint32_t hook_other_methods(uint32_t r0,
@@ -167,9 +165,10 @@ uint32_t hook_other_methods(uint32_t r0,
 #endif
 {
     auto *pcontext = (method_info_t *) context;
-    logd("hook jni call methods %s args %ld",
+    logi("hook jni call methods %s, args %ld, ret-> %p",
          pcontext->name.c_str(),
-         pcontext->args_type.size());
+         pcontext->args_type.size(),
+         (void *) ((int64_t) ret_point - (int64_t) g_tar_module->load_addr));
 //    logd("reg %p %p %p %p", r0, r1, r2, r3);
     JNIEnv *origin_env = get_origin_env();
 
@@ -212,7 +211,7 @@ uint32_t hook_other_methods(uint32_t r0,
 #endif
 //    logd("%s", "---------end-----------");
 #if IS_PRINT_PARAMS
-    logd("                       ret: %s",
+    logi("                       ret: %s",
          format_args(origin_env, pcontext->ret_type, ret).c_str());
 #endif
     return ret;
@@ -305,7 +304,7 @@ jint fake_AttachCurrentThread(JavaVM *jvm, JNIEnv **penv, void *param) {
         push_origin_env(new_env);
         *penv = g_fake_env;
     } else {
-        logi("hook_jvm_methods  jvm->AttachCurrentThread error %d!!!", ret);
+        loge("hook_jvm_methods  jvm->AttachCurrentThread error %d!!!", ret);
         *penv = nullptr;
     }
     return ret;
@@ -318,7 +317,7 @@ jint fake_GetEnv(JavaVM *jvm, void **penv, jint param) {
         push_origin_env(new_env);
         *penv = g_fake_env;
     } else {
-        logi("hook_jvm_methods  jvm->GetEnv error %d!!!", ret);
+        loge("hook_jvm_methods  jvm->GetEnv error %d!!!", ret);
         *penv = nullptr;
     }
     return ret;
@@ -335,7 +334,8 @@ int64_t hook_jvm_methods(int64_t x0,
                          int64_t x6,
                          int64_t x7,
                          void *context,
-                         void *stack_args)
+                         void *stack_args,
+                         void *ret_point)
 #else
 
 uint32_t hook_jvm_methods(uint32_t r0,
@@ -347,7 +347,9 @@ uint32_t hook_jvm_methods(uint32_t r0,
 #endif
 {
     auto *pcontext = (method_info_t *) context;
-    logd("hook jvm call methods %s", pcontext->name.c_str());
+    logi("hook jvm call methods %s, ret-> %p", pcontext->name.c_str(),
+         (void *) ((int64_t) ret_point - (int64_t) g_tar_module->load_addr));
+
     switch (pcontext->index) {
         case 4:
             return fake_AttachCurrentThread((JavaVM *) REG_ID(0), (JNIEnv **) REG_ID(1),
@@ -370,7 +372,7 @@ uint32_t hook_jvm_methods(uint32_t r0,
                                   pcontext->origin_call);
 #endif
 
-    logd("                       ret: %x", ret);
+    logi("                       ret: %x", ret);
     return ret;
 }
 
@@ -384,8 +386,9 @@ JavaVM *create_hook_java_vm(JavaVM *jvm) {
     new_jvm_interface->reserved2 = tar_jvm->reserved2;
 
     for (int index = 0; jni_jvm_method_info[index].index != 0; index++) {
-        auto shell_code = create_shellcode_hooking_func(hook_jvm_methods,
-                                                        &jni_jvm_method_info[index]);
+        auto shell_code =
+                +create_shellcode_hooking_func(hook_jvm_methods,
+                                               &jni_jvm_method_info[index]);
 
         jni_jvm_method_info[index].origin_call = ((void **) tar_jvm)[jni_jvm_method_info[index].index];
         ((void **) new_jvm_interface)[jni_jvm_method_info[index].index] = shell_code;

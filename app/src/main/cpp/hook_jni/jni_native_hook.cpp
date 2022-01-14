@@ -6,8 +6,8 @@
 #include "../utils/log.h"
 #include "../utils/jni_helper.h"
 #include "../route_func/route_func.h"
-#include "../route_func/printf_java_args.h"
-#include "../route_func/printf_args_helper.h"
+#include "printf_java_args.h"
+#include "printf_args_helper.h"
 #include "../libxhook/xhook.h"
 #include "global_code.h"
 #include "jni_native_hook.h"
@@ -37,7 +37,8 @@ int64_t hook_native_func(int64_t x0,
                          int64_t x6,
                          int64_t x7,
                          void *context,
-                         void *stack_args)
+                         void *stack_args,
+                         void *ret_point)
 #else
 
 uint32_t hook_native_func(uint32_t r0,
@@ -61,10 +62,11 @@ uint32_t hook_native_func(uint32_t r0,
             loge("%s", "md fuck go dead....");
         }
     }
-    logi("hook native call %s->%s args count %ld",
+    logi("hook native call %s->%s, args count %ld, ret-> %p",
          pcontext->class_name.c_str(),
          pcontext->method_name.c_str(),
-         pcontext->args_type.size() + 2);
+         pcontext->args_type.size() + 2,
+         (void *) ((int64_t) ret_point - (int64_t) g_tar_module->load_addr));
 
 #if defined(__arm64__) || defined(__aarch64__)
 
@@ -94,14 +96,14 @@ uint32_t hook_native_func(uint32_t r0,
 #endif
 
 #if IS_PRINT_PARAMS
-    logd("native call %s->%s  ret: %s", pcontext->class_name.c_str(), pcontext->method_name.c_str(),
+    logi("native call %s->%s  ret: %s", pcontext->class_name.c_str(), pcontext->method_name.c_str(),
          format_args(origin_env, pcontext->ret_type, ret).c_str());
 #endif
     return ret;
 }
 
 jint hook_jni_onload(JavaVM *vm, void *reserved) {
-    logd("%s", "hook native call jni_onload");
+    logi("%s", "hook native call jni_onload");
     return ((jint (*)(JavaVM *, void *)) origin_jni_onload_ptr)(g_fake_jvm, reserved);
 }
 
@@ -110,7 +112,7 @@ jint hook_RegisterNatives(JNIEnv *env,
                           JNINativeMethod *method,
                           jint num,
                           func_type_RegisterNatives origin_call) {
-    logd("%s", "hook native call RegisterNatives");
+    logi("%s", "hook native call RegisterNatives");
     auto *fake_method = new JNINativeMethod[num];
     for (int index = 0; index < num; ++index) {
         fake_method[index].fnPtr = method[index].fnPtr;
@@ -126,13 +128,13 @@ jint hook_RegisterNatives(JNIEnv *env,
             }
         }
         if (is_repeat) {
-            logd("hook_RegisterNatives parse_java_signature %s : %s is_repeat!!!",
+            loge("hook_RegisterNatives parse_java_signature %s : %s is_repeat!!!",
                  method[index].name,
                  method[index].signature);
             continue;
         }
         if (!parse_java_signature(method[index].signature, info->args_type, info->ret_type)) {
-            logd("hook_RegisterNatives parse_java_signature %s : %s error!!!",
+            loge("hook_RegisterNatives parse_java_signature %s : %s error!!!",
                  method[index].name,
                  method[index].signature);
             continue;
@@ -141,7 +143,7 @@ jint hook_RegisterNatives(JNIEnv *env,
         info->addr = method[index].fnPtr;
         info->origin_call = method[index].fnPtr;
         unsigned char *shell_code = create_shellcode_hooking_func(hook_native_func, info);
-        logd("hook_RegisterNatives: %s : %s %lx -> %lx",
+        logi("hook_RegisterNatives: %s : %s %lx -> %lx",
              method[index].name,
              method[index].signature,
              (int64_t) method[index].fnPtr - (int64_t) g_tar_module->load_addr,
