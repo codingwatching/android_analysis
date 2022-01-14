@@ -19,4 +19,7 @@ main.py修改要注入的进程
 index.js中修改要注入的so
 ```
 记得把.json文件放在sdcard
- 
+  
+x86存在bug,自行解决问题, 欢迎投币,作者QQ734248537 谢谢
+x86 is bug, fix bug by yourself, wecome to give me money, qq is 734248537, see you leite
+
