@@ -23,3 +23,4 @@ index.js中修改要注入的so
 x86存在bug,自行解决问题, 欢迎投币,作者QQ734248537 谢谢
 x86 is bug, fix bug by yourself, wecome to give me money, qq is 734248537, see you leite
 
+有修复x86汇编的朋友可联系作者提交代码
