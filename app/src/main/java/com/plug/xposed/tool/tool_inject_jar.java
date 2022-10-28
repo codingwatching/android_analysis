@@ -42,8 +42,17 @@ public class tool_inject_jar extends sub_plug_base {
                     app.getCacheDir().getAbsolutePath(),
                     null,
                     class_loader);
+            try {
+                dexClassLoader.loadClass("com.alibaba.fastjson.JSON");
+            } catch (Exception e) {
+                log.i("load com.alibaba.fastjson.JSON error: " + e);
+            }
+            try {
+                dexClassLoader.loadClass("com.google.gson.Gson");
+            } catch (Exception e) {
+                log.i("load com.google.gson.Gson error: " + e);
+            }
 
-            dexClassLoader.loadClass("com.google.gson.Gson");
             dexClassLoader.loadClass("com.plug.export.frida_helper");
             log.i("inject jar success!");
         } catch (Exception e) {

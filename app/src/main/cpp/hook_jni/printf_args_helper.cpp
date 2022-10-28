@@ -56,37 +56,74 @@ printf_java_func_args(JNIEnv *env, uint64_t &offset, int64_t x0, int64_t x1, int
 
 void
 printf_java_func_args_end_with_array(JNIEnv *env, uint64_t offset, int64_t x0, int64_t x1,
-                                     int64_t x2, int64_t x3, int64_t x4, int64_t x5, int64_t x6,
-                                     int64_t x7, void *pcontext, void *stack_args,
-                                     const vector<string> &args_type) {
+                                       int64_t x2, int64_t x3, int64_t x4, int64_t x5, int64_t x6,
+                                       int64_t x7, void *pcontext, void *stack_args,
+                                       const vector<string> &args_type) {
     if (args_type.size() == 0) {
         return;
     }
-    printf_java_func_args(env, offset, x0, x1, x2, x3, x4, x5, x6, x7, pcontext, stack_args,
-                          args_type, args_type.size() - 1);
+//    printf_java_func_args(env, offset, x0, x1, x2, x3, x4, x5, x6, x7, pcontext, stack_args,
+//                          args_type, args_type.size() - 1);
 
-    jvalue *value = printf_args_helper::get_args<jvalue *>(offset, x0, x1, x2, x3, x4, x5, x6, x7,
-                                                           pcontext,
-                                                           stack_args);
-    for (int index = 0; index < args_type.size(); index++) {
-        int args_bit_size = get_args_size(args_type[index]);
+    void *pva = printf_args_helper::get_args<void *>(offset, x0, x1, x2, x3, x4, x5, x6, x7,
+                                                     pcontext,
+                                                     stack_args);
+    char va_buf[0x20];
+    memcpy(va_buf, pva, 0x20);
+    va_list *pva_start = (va_list *) va_buf;
+    for (const auto &item: args_type) {
+        int args_bit_size = get_args_size(item);
         uint64_t args_value;
         switch (args_bit_size) {
             case 4:
-//                args_value = value[index].i;
-//                break;
+                args_value = va_arg(*pva_start, uint32_t);
+                break;
             case 8:
-                args_value = (uint64_t) value[index].d;
+                args_value = va_arg(*pva_start, uint64_t);
                 break;
             default:
-                args_value = value[index].i;
+                args_value = va_arg(*pva_start, uint32_t);
                 break;
         }
-
-        logd("                       args type: %s , value: %s", args_type[index].c_str(),
-             format_args(env, args_type[index], args_value).c_str());
+        logd("                       args: %s",
+             format_args(env, item, args_value).c_str());
     }
 }
+
+//
+//void
+//printf_java_func_args_end_with_array(JNIEnv *env, uint64_t offset, int64_t x0, int64_t x1,
+//                                     int64_t x2, int64_t x3, int64_t x4, int64_t x5, int64_t x6,
+//                                     int64_t x7, void *pcontext, void *stack_args,
+//                                     const vector<string> &args_type) {
+//    if (args_type.size() == 0) {
+//        return;
+//    }
+//    printf_java_func_args(env, offset, x0, x1, x2, x3, x4, x5, x6, x7, pcontext, stack_args,
+//                          args_type, args_type.size() - 1);
+//
+//    jvalue *value = printf_args_helper::get_args<jvalue *>(offset, x0, x1, x2, x3, x4, x5, x6, x7,
+//                                                           pcontext,
+//                                                           stack_args);
+//    for (int index = 0; index < args_type.size(); index++) {
+//        int args_bit_size = get_args_size(args_type[index]);
+//        uint64_t args_value;
+//        switch (args_bit_size) {
+//            case 4:
+////                args_value = value[index].i;
+////                break;
+//            case 8:
+//                args_value = (uint64_t) value[index].d;
+//                break;
+//            default:
+//                args_value = value[index].i;
+//                break;
+//        }
+//
+//        logd("                       args type: %s , value: %s", args_type[index].c_str(),
+//             format_args(env, args_type[index], args_value).c_str());
+//    }
+//}
 #else
 
 void

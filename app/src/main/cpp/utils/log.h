@@ -119,7 +119,8 @@ enum class log_adapt {
     use_file,
     use_printf,
     use_custom_func,
-    use_adb
+    use_adb,
+    use_none
 };
 
 enum class log_level {
@@ -134,16 +135,13 @@ class log {
     static FILE *log_file;
     static std::mutex lock;
     static log_adapt adapt;
-    static lstring log_file_path;
-    static lstring tag;
     static lstring level_string[];
     static func_log flog;
+    static lstring log_file_path;
+    static lstring tag;
+
 public:
-    log() {
-        //log_file = fopen("/sdcard/log.txt", "w");
-        set_adapt(log_adapt::use_printf);
-        set_tag("sniffer");
-    }
+    log() {}
 
     ~log() {
         if (log_file) {
@@ -151,8 +149,20 @@ public:
         }
     }
 
+    static void set_file_path(lstring path) {
+        if (path == "") {
+            return;
+        }
+        log::log_file_path = path;
+        log_file = fopen(path.c_str(), "w");
+    }
+
     static void set_adapt(log_adapt adapt) {
         log::adapt = adapt;
+    }
+
+    static lstring get_tag() {
+        return log::tag;
     }
 
     static void set_tag(const lstring &tag) {
@@ -173,7 +183,6 @@ public:
     }
 
     static void _logi(const TCHAR *msg, ...) {
-
         va_list va;
         va_start(va, msg);
         output_log(format_log(log_level::info, msg, va));
@@ -181,7 +190,6 @@ public:
     }
 
     static void _logw(const TCHAR *msg, ...) {
-
         va_list va;
         va_start(va, msg);
         output_log(format_log(log_level::warn, msg, va));
@@ -198,8 +206,8 @@ public:
     static string format_log(log_level level, const lstring &fmt, va_list va) {
         lstring buffer;
 
-        buffer += time_to_string(get_time());
-        buffer += " ";
+//        buffer += time_to_string(get_time());
+//        buffer += " ";
 
         //auto tid = std::this_thread::get_id();
         //lstring stid = std::lto_string((*(_Thrd_t*)(char*)&tid)._Id);
@@ -221,6 +229,8 @@ public:
 
     static void output_log(const lstring &buf) {
         switch (adapt) {
+            case log_adapt::use_none:
+                return;
             case log_adapt::use_file:
                 log2file(buf);
                 break;
@@ -231,7 +241,7 @@ public:
                 flog(buf);
                 break;
             case log_adapt::use_adb:
-                android_log_print(ANDROID_LOG_VERBOSE, _T(""), buf.c_str(), _T(""));
+                android_log_print(ANDROID_LOG_VERBOSE, tag.c_str(), buf.c_str(), _T(""));
                 break;
         }
     }

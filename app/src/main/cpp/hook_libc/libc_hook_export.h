@@ -11,7 +11,6 @@
 #include "factory.h"
 #include "filter.h"
 #include "memory_file.h"
-#include "only_watch.h"
 
 bool hook_global_init();
 

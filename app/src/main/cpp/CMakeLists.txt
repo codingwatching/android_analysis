@@ -8,9 +8,12 @@ cmake_minimum_required(VERSION 3.10.2)
 # Declares and names the project.
 
 project("local_caller")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  "${CMAKE_CURRENT_SOURCE_DIR}/../../../libs/${ANDROID_ABI}")
+
+
 enable_language(ASM)
 
-add_definitions (-Wno-format-security)
+add_definitions(-Wno-format-security)
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -50,9 +53,9 @@ if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a" OR ${CMAKE_ANDROID_ARCH_ABI
             "utils/*.cpp"
             "utils/*.c"
 
-            "export_jni/*.h"
-            "export_jni/*.cpp"
-            "export_jni/*.c"
+            "test/*.h"
+            "test/*.cpp"
+            "test/*.c"
 
             "xposed/*.h"
             "xposed/*.cpp"
@@ -115,13 +118,14 @@ if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a" OR ${CMAKE_ANDROID_ARCH_ABI
             # Links the target library to the log library
             # included in the NDK.
             ${log-lib})
+
 endif ()
 
 
 file(GLOB test_src
-        "test/*.h"
-        "test/*.cpp"
-        "test/*.c"
+        "test_jni/*.h"
+        "test_jni/*.cpp"
+        "test_jni/*.c"
 
         "dlfc/*.h"
         "dlfc/*.cpp"
@@ -146,3 +150,5 @@ target_link_libraries( # Specifies the target library.
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})
+
+add_subdirectory(sniffer)

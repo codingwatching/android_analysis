@@ -64,12 +64,16 @@ uint32_t hook_call_methods(uint32_t r0,
                           stack_args, pcontext->args_type, pcontext->args_type.size() - 1);
 #endif
 #endif
+    int mod_index;
     jmethodID method_id;
     if (pcontext->index <= 63) {
+        mod_index = pcontext->index % 3;
         method_id = (jmethodID) REG_ID(2);
     } else if (pcontext->index <= 93) {
+        mod_index = pcontext->index % 3;
         method_id = (jmethodID) REG_ID(3);
     } else if (pcontext->index <= 143) {
+        mod_index = (pcontext->index + 1) % 3;
         method_id = (jmethodID) REG_ID(2);
     } else {
         loge("hook jni occour error!!! %s", pcontext->name.c_str());
@@ -91,7 +95,7 @@ uint32_t hook_call_methods(uint32_t r0,
         return 0;
     }
 
-    int mod_index = pcontext->index % 3;
+
     int stack_args_count;
     if (mod_index == 0) {
         stack_args_count = args_type.size() + pcontext->args_type.size() - REG_COUNT - 1;
@@ -102,7 +106,15 @@ uint32_t hook_call_methods(uint32_t r0,
         stack_args_count = 0;
     }
 //    logd("---------route-----------%d", pcontext->args_type.size());
-    logd("                            java method %s", method_pretty_name.c_str());
+//    logd("---------stack_args_count-----------%d", stack_args_count);
+//    logd("---------args_type-----------%d", args_type.size());
+//    logd("---------java_args_offset-----------%d", java_args_offset);
+//    logd("---------x3-----------%d", x3);
+//    logd("---------stack_args-----------%d", *(int64_t *) stack_args);
+//    logd("---------x3 v-----------%d",     format_args(origin_env, args_type[0], x3).c_str());
+//    logd("---------stack_args v-----------%d",  format_args(origin_env, args_type[0],  *(int64_t *) stack_args).c_str());
+
+    logd("                            java call sub method %s", method_pretty_name.c_str());
 #if defined(__arm64__) || defined(__aarch64__)
 #if IS_PRINT_PARAMS
     if (mod_index == 0 || mod_index == 1) {
@@ -117,7 +129,6 @@ uint32_t hook_call_methods(uint32_t r0,
                                  stack_args_count,
                                  stack_args,
                                  pcontext->origin_call);
-
 #else
 #if IS_PRINT_PARAMS
     if (mod_index == 0||mod_index == 1) {

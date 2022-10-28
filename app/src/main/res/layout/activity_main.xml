@@ -19,6 +19,40 @@
             android:layout_height="102dp"
             android:orientation="horizontal">
 
+            <Button
+                android:id="@+id/update_apkdb"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="更新apk db" />
+
+            <Button
+                android:id="@+id/qihu360"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="360" />
+
+            <Button
+                android:id="@+id/avl"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="avl" />
+
+            <Button
+                android:id="@+id/fzzx"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="fzzx" />
+
+            <Button
+                android:id="@+id/analyse"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="test_analyse" />
 
         </LinearLayout>
 

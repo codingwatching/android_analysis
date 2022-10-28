@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import android.provider.Settings;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         app_list_data = get_installed_apps();
         ListView app_list_view = (ListView) findViewById(R.id.app_list_view);
         app_list_view.setAdapter(new app_adapter(this, app_list_data));
@@ -77,19 +79,62 @@ public class MainActivity extends AppCompatActivity {
         intent.setComponent(new ComponentName("com.caller", "com.caller.XposedService"));
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
+        findViewById(R.id.update_apkdb).setOnClickListener((v) -> {
 
-//        findViewById(R.id.xxxx).setOnClickListener((v) -> {
-//            if (iXposedService != null) {
-//                try {
-//                    log.i("ctrl_xposed_plug xxxxxxx",
-//                            iXposedService.ctrl_xposed_plug(xposed_plug_common.plug_name.xxxxxxx, xposed_plug_common.plug_cmd.xxxxx,xxxxx.getBytes()));
-//                } catch (RemoteException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
+        });
+
+        findViewById(R.id.fzzx).setOnClickListener((v) -> {
+            if (iXposedService != null) {
+                try {
+                    log.i("ctrl_xposed_plug xposed_plug_fzzx",
+                            iXposedService.ctrl_xposed_plug(xposed_plug_common.plug_name.plug_name_fzzx, xposed_plug_common.plug_cmd.run_scan, config.db_dir_path.getBytes()));
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        findViewById(R.id.qihu360).setOnClickListener((v) -> {
+            if (iXposedService != null) {
+                try {
+                    log.i("ctrl_xposed_plug xposed_plug_360",
+                            iXposedService.ctrl_xposed_plug(xposed_plug_common.plug_name.plug_name_360, xposed_plug_common.plug_cmd.run_scan, config.db_dir_path.getBytes()));
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        findViewById(R.id.avl).setOnClickListener((v) -> {
+            if (iXposedService != null) {
+                try {
+                    log.i("ctrl_xposed_plug xposed_plug_avl",
+                            iXposedService.ctrl_xposed_plug(xposed_plug_common.plug_name.plug_name_avl, xposed_plug_common.plug_cmd.run_scan, config.db_dir_path.getBytes()));
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
 
+
+//        log.i("test_args " + test_jni.test_args3(1, 2, 3, 4));
+//        analyse_test.init_jni_hook("libtest_jni.so");
+        System.loadLibrary("native_hook");
+        System.loadLibrary("test_jni");
+        analyse_test.load_test();
+
+        findViewById(R.id.analyse).setOnClickListener((v) -> {
+
+//        System.loadLibrary("test_jni");
+//            test_jni.test_args("", "", "", "", "", "", "", "");
+//            test_jni.test_args2(1, 2, 3, 4, 5, 6, 7, 8);
+//            test_jni.test_args3(1, 2, 3, 4);
+            test_jni.test_args5(new test_jni());
+
+//            log.i("test_args " + test_jni.test_args2(1, 2, 3, 4, 5, 6, 7, 8));
+//            log.i("test_args " + test_jni.test_args3(1, 2, 3, 4));
+        });
     }
 
     private ArrayList<app_info> get_installed_apps() {

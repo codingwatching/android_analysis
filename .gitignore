@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+app/libs/arm64-v8a/sniffer.so
+.idea
+

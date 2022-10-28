@@ -4,9 +4,11 @@ import android.app.Application;
 import android.content.Context;
 
 import com.plug.base.plug_config;
+import com.plug.xposed.app_sub_plug.sub_plug_txsd;
 import com.plug.xposed.base.sub_plug_base;
 import com.plug.xposed.base.xposed_plug_base;
 import com.plug.xposed.base.xposed_plug_common;
+import com.plug.xposed.tool.tool_fangtianxia;
 import com.plug.xposed.tool.tool_inject_jar;
 import com.plug.xposed.tool.tool_okhttp_analyse;
 import com.plug.xposed.tool.tool_pass_root;
@@ -28,12 +30,12 @@ public class xposed_sub_plug_loader extends xposed_plug_base implements IXposedH
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
-
         plug_config config = plug_config.load_plug_config();
         if (config == null) {
             return;
         }
         tools.add(new tool_inject_jar(config, lpparam));
+//        tools.add(new tool_fangtianxia(config, lpparam));
 
         if (lpparam.packageName.contains(config.analyse_packet_name)) {
             log.i("analyse inject process " + lpparam.processName + "!");
@@ -76,8 +78,6 @@ public class xposed_sub_plug_loader extends xposed_plug_base implements IXposedH
 //                    }
 //                }
 //            });
-
-
         }
 
 

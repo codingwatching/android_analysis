@@ -142,6 +142,7 @@ jint hook_RegisterNatives(JNIEnv *env,
         info->method_name = method[index].name;
         info->addr = method[index].fnPtr;
         info->origin_call = method[index].fnPtr;
+        info->class_name = get_object_class_name(env, c);
         unsigned char *shell_code = create_shellcode_hooking_func(hook_native_func, info);
         logi("hook_RegisterNatives: %s : %s %lx -> %lx",
              method[index].name,
@@ -162,7 +163,7 @@ void init_jni_hook(JNIEnv *env, elf_info *tar_module, const char *module_name) {
 //    xhook_enable_debug(1);
     logi("%s", "to hook static jni native func");
     static_jni_func_infos = enum_static_jni_func(env, tar_module);
-    for (auto &item :static_jni_func_infos) {
+    for (auto &item: static_jni_func_infos) {
         if (!item.available) {
             logi("static jni native func %s->%s is not available", item.class_name.c_str(),
                  item.method_name.c_str());
@@ -186,6 +187,12 @@ void init_jni_hook(JNIEnv *env, elf_info *tar_module, const char *module_name) {
         logi("%s", "there is no JNI_OnLoad!");
     }
 //    xhook_refresh(0);
+}
+
+extern "C" JNIEXPORT void JNICALL
+use_file_log(char *path) {
+    log::set_file_path(path);
+    log::set_adapt(log_adapt::use_file);
 }
 
 extern "C" JNIEXPORT void JNICALL

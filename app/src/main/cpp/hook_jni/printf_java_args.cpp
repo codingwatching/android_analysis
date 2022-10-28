@@ -81,14 +81,15 @@ DECLARE_PRINTF_FUNC(java_lang_String) {
     }
     return jstring2str(env, (jstring) obj);
 }
+#define USE_IN_JAVA_PARSE
 
 #ifdef USE_IN_JAVA_PARSE
 DECLARE_PRINTF_FUNC(in_java_parse) {
     if (obj == 0) {
         return "null";
     }
-    jclass native_hook_helper = env->FindClass("com/hook/native_hook_helper");
-    jmethodID format_args = env->GetStaticMethodID(native_hook_helper, "format_args",
+    jclass native_hook_helper = env->FindClass("com/plug/export/frida_helper");
+    jmethodID format_args = env->GetStaticMethodID(native_hook_helper, "object_2_string",
                                                    "(Ljava/lang/Object;)Ljava/lang/String;");
 
 #if defined(__arm64__) || defined(__aarch64__)
