@@ -18,7 +18,6 @@
 
 int fake_dlclose(elf_info *elf_info) {
     if (elf_info) {
-        regfree(&elf_info->reg);
         if (elf_info->dynsym) free(elf_info->dynsym);    /* we're saving dynsym and dynstr */
         if (elf_info->dynstr) free(elf_info->dynstr);    /* from library file just in case */
         free(elf_info);
@@ -27,6 +26,50 @@ int fake_dlclose(elf_info *elf_info) {
 }
 
 #define fatal(fmt, args...) do { log_err(fmt,##args); goto err_exit; } while(0)
+
+#define PRI_PTR_prefix "l"
+#define PRIxPTR PRI_PTR_prefix "x" /* uintptr_t */
+
+
+bool fake_enumerate_module(enumerate_callback callback) {
+    FILE *maps = fopen("/proc/self/maps", "r");
+    if (!maps)
+        return false;
+
+    char buff[256];
+    while (fgets(buff, sizeof(buff), maps)) {
+        void *region_start, *region_end;
+        void *region_offset;
+        char permissions[5] = {'\0'};
+        uint8_t dev_major = 0;
+        uint8_t dev_minor = 0;
+        long inode = 0;
+        int path_index = 0;
+        if (sscanf(buff,
+                   "%" PRIxPTR "-%" PRIxPTR " %4c "
+                   "%" PRIxPTR " %hhx:%hhx %ld %n",
+                   &region_start, &region_end, permissions, &region_offset, &dev_major, &dev_minor,
+                   &inode,
+                   &path_index) < 7) {
+            continue;
+        }
+
+        if (strstr(permissions, "r-xp")) {
+            char *path_buffer = buff + path_index;
+            if (*path_buffer == 0 || *path_buffer == '\n' || *path_buffer == '[')
+                continue;
+            if (path_buffer[strlen(path_buffer) - 1] == '\n') {
+                path_buffer[strlen(path_buffer) - 1] = 0;
+            }
+            if (callback(path_buffer)) {
+                break;
+            }
+        }
+    }
+    fclose(maps);
+    return true;
+}
+
 
 /* flags are ignored */
 elf_info *fake_dlopen(const char *libpath, int flags) {
@@ -42,19 +85,14 @@ elf_info *fake_dlopen(const char *libpath, int flags) {
     if (!elf_info)
         fatal("no memory for %s", libpath);
 
-    if (regcomp(&elf_info->reg, libpath, REG_EXTENDED) != 0) {
-        fatal("regcomp error %s", libpath);
-    }
-
-    elf_info->reg_path = libpath;
-
     maps = fopen("/proc/self/maps", "r");
     if (!maps)
         fatal("failed to open maps");
 
     while (!found && fgets(buff, sizeof(buff), maps)) {
-        if ((strstr(buff, "r-xp") || strstr(buff, "r--p")) &&
-            regexec(&elf_info->reg, buff, 0, nullptr, 0) == 0) {
+//        || strstr(buff, "r--p")
+        if ((strstr(buff, "r-xp")) &&
+            strstr(buff, libpath)) {
             found = 1;
             elf_info->full_path = strstr(buff, "/");
             size_t n = elf_info->full_path.find_last_not_of("\r\n\t");

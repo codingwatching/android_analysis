@@ -23,9 +23,7 @@ using std::string;
 #define Elf_Sym  Elf32_Sym
 #endif
 struct elf_info {
-    string reg_path;
     string full_path;
-    regex_t reg;
     void *load_addr;
     void *end_addr;
     void *dynstr;
@@ -45,4 +43,6 @@ void fake_get_module_info(void *handle, void **base, void **end);
 
 const char *fake_get_sym_name(elf_info *handle, int index);
 
+using enumerate_callback = bool (*)(const char *path);
 
+bool fake_enumerate_module(enumerate_callback callback);
