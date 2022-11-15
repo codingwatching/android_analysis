@@ -8,9 +8,13 @@ cmake_minimum_required(VERSION 3.10.2)
 # Declares and names the project.
 
 project("local_caller")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  "${CMAKE_CURRENT_SOURCE_DIR}/../../../libs/${ANDROID_ABI}")
-
-
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../libs/${ANDROID_ABI}")
+#set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden -O0 -g3")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden -O0 -g3")
+#set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+#set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+#C:/Users/a/AppData/Local/Android/Sdk/ndk/21.1.6352462/toolchains/llvm/prebuilt/windows-x86_64/bin/
+#aarch64-linux-android-strip.exe -s D:\desktop\xposed_project\app\libs\arm64-v8a\libtest_jni.so -o D:\desktop\xposed_project\app\libs\arm64-v8a\libtest_jni.so --strip-all
 enable_language(ASM)
 
 add_definitions(-Wno-format-security)
@@ -32,6 +36,13 @@ find_library( # Sets the name of the path variable.
         # Specifies the name of the NDK library that
         # you want CMake to locate.
         log)
+
+
+set(DobbyHome "./dobby")
+#    set(GENERATE_SHARED OFF)
+#set(DOBBY_DEBUG OFF)
+add_subdirectory(${DobbyHome} dobby)
+
 
 if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a" OR ${CMAKE_ANDROID_ARCH_ABI} STREQUAL "arm64-v8a")
     # arch prefix
@@ -101,10 +112,7 @@ if (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a" OR ${CMAKE_ANDROID_ARCH_ABI
             ${native_hook_asm_src}
             ${native_hook_src})
 
-    set(DobbyHome "./dobby")
-    #set(GENERATE_SHARED OFF)
-    #set(DOBBY_DEBUG ON)
-    add_subdirectory(${DobbyHome} dobby)
+
     target_link_libraries(native_hook dobby)
 
 
@@ -123,9 +131,9 @@ endif ()
 
 
 file(GLOB test_src
-        "test_jni/*.h"
-        "test_jni/*.cpp"
-        "test_jni/*.c"
+        "hook_ssl/*.h"
+        "hook_ssl/*.cpp"
+        "hook_ssl/*.c"
 
         "dlfc/*.h"
         "dlfc/*.cpp"
@@ -134,18 +142,23 @@ file(GLOB test_src
         "utils/*.h"
         "utils/*.cpp"
         "utils/*.c"
+
+        "dobby/include/dobby.h"
         )
 
+
 add_library( # Sets the name of the library.
-        test_jni
+        ssl2
         # Sets the library as a shared library.
         SHARED
         # Provides a relative path to your source file(s).
         ${test_src}
         )
 
+target_link_libraries(ssl2 dobby)
+
 target_link_libraries( # Specifies the target library.
-        test_jni
+        ssl2
 
         # Links the target library to the log library
         # included in the NDK.

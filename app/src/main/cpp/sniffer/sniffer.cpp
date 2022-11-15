@@ -63,7 +63,7 @@ int main(int argc, char **args) {
                 format_string("iptables -A OUTPUT -m connmark --mark %s -j NFLOG --nflog-group %s",
                               userid.c_str(), userid.c_str()));
 
-        system_call(format_string("tcpdump -i nflog:%s -w /sdcard/%s_%s.pcap", userid.c_str(),
+        system_call(format_string("./tcpdump -i nflog:%s -w /sdcard/%s_%s.pcap", userid.c_str(),
                                   package_name.c_str(), file_name.c_str()));
     } catch (const string &err_cmd) {
         loge("cmd run error: %s", err_cmd.c_str());

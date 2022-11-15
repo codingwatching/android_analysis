@@ -147,3 +147,33 @@ jthrowable clean_exception(JNIEnv *env) {
     }
     return nullptr;
 }
+
+jobject get_application(JNIEnv *env) {
+    jobject application = NULL;
+    jclass activity_thread_clz = env->FindClass("android/app/ActivityThread");
+    if (activity_thread_clz != NULL) {
+        jmethodID get_Application = env->GetStaticMethodID(activity_thread_clz,
+                                                           "currentActivityThread",
+                                                           "()Landroid/app/ActivityThread;");
+        if (get_Application != NULL) {
+            jobject currentActivityThread = env->CallStaticObjectMethod(activity_thread_clz,
+                                                                        get_Application);
+            jmethodID getal = env->GetMethodID(activity_thread_clz, "getApplication",
+                                               "()Landroid/app/Application;");
+            application = env->CallObjectMethod(currentActivityThread, getal);
+        }
+        return application;
+    }
+    return application;
+}
+
+jstring get_package_name(JNIEnv *env) {
+    jobject context = get_application(env);
+    if (context == NULL) {
+        return NULL;
+    }
+    jclass activity = env->GetObjectClass(context);
+    jmethodID methodId_pack = env->GetMethodID(activity, "getPackageName", "()Ljava/lang/String;");
+    jstring name_str = static_cast<jstring >( env->CallObjectMethod(context, methodId_pack));
+    return name_str;
+}

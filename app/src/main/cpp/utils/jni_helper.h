@@ -33,3 +33,7 @@ string get_method_name(jmethodID method_id, method_name_type type, bool with_sig
 string get_object_class_name(JNIEnv *env, jobject obj);
 
 jthrowable clean_exception(JNIEnv *env);
+
+jstring get_package_name(JNIEnv *env);
+
+jobject get_application(JNIEnv *env);

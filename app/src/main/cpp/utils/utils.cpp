@@ -57,3 +57,4 @@ string format_string(const string &fmt, ...) {
     va_end(va);
     return std::move(buffer);
 }
+
