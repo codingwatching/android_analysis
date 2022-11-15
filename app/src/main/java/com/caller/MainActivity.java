@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import android.provider.Settings;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -27,8 +26,14 @@ import com.units.config;
 import com.units.log;
 import com.plug.xposed.base.xposed_plug_common;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        System.loadLibrary("hook_ssl");
 
         app_list_data = get_installed_apps();
         ListView app_list_view = (ListView) findViewById(R.id.app_list_view);
@@ -64,10 +70,8 @@ public class MainActivity extends AppCompatActivity {
                 plug_config config = plug_config.load_plug_config();
                 if (config == null) {
                     config = new plug_config();
-                    config.okhttp = new plug_config.okhttp_config();
                 }
                 config.analyse_packet_name = app.packName;
-                config.okhttp.print_stack = true;
                 plug_config.save_plug_config(config);
             }
         });
@@ -117,11 +121,37 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        byte[] AFKeystoreWrapper = new byte[8];
+        AFKeystoreWrapper[1] = 0;
+        AFKeystoreWrapper[2] = 0;
+        AFKeystoreWrapper[3] = 0;
+        AFKeystoreWrapper[4] = 0;
+        AFKeystoreWrapper[5] = 0;
+        AFKeystoreWrapper[6] = 0;
+        AFKeystoreWrapper[7] = 0;
+        AFKeystoreWrapper[0] = 0;
+        try {
+            SecretKeySpec aa = new SecretKeySpec(SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1").generateSecret(
+                    new PBEKeySpec("pgpGq9nTscTCXwMZoUysKf".toCharArray(),
+                            AFKeystoreWrapper,
+                            0x2710,
+                            128)
+            ).getEncoded(),
+                    "AES");
+            aa = null;
+
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+
 
 //        log.i("test_args " + test_jni.test_args3(1, 2, 3, 4));
 //        analyse_test.init_jni_hook("libtest_jni.so");
         System.loadLibrary("native_hook");
-        System.loadLibrary("test_jni");
+        System.loadLibrary("hook_ssl");
         analyse_test.load_test();
 
         findViewById(R.id.analyse).setOnClickListener((v) -> {

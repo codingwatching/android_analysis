@@ -49,6 +49,7 @@ public class frida_helper {
             sb.append(String.format("%02x", item));
             sb.append(" ");
         }
+
         return sb.toString();
     }
 

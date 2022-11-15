@@ -16,19 +16,4 @@ public class xposed_plug_common {
         static public String run_scan = "run_scan";
     }
 
-    public static Map<Integer, String> plug_qihoo_level = new HashMap<Integer, String>() {{
-        put(0, "安全");
-        put(100, "谨慎");
-        put(500, "篡改");
-        put(400, "感染");
-        put(700, "高危");
-        put(101, "广告");
-        put(800, "木马");
-        put(200, "启动");
-        put(1, "未知");
-        put(300, "useby木马");
-        put(600, "危险");
-    }};
-
-
 }

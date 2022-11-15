@@ -106,14 +106,6 @@ uint32_t hook_call_methods(uint32_t r0,
         stack_args_count = 0;
     }
 //    logd("---------route-----------%d", pcontext->args_type.size());
-//    logd("---------stack_args_count-----------%d", stack_args_count);
-//    logd("---------args_type-----------%d", args_type.size());
-//    logd("---------java_args_offset-----------%d", java_args_offset);
-//    logd("---------x3-----------%d", x3);
-//    logd("---------stack_args-----------%d", *(int64_t *) stack_args);
-//    logd("---------x3 v-----------%d",     format_args(origin_env, args_type[0], x3).c_str());
-//    logd("---------stack_args v-----------%d",  format_args(origin_env, args_type[0],  *(int64_t *) stack_args).c_str());
-
     logd("                            java call sub method %s", method_pretty_name.c_str());
 #if defined(__arm64__) || defined(__aarch64__)
 #if IS_PRINT_PARAMS

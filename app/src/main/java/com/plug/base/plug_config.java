@@ -10,13 +10,8 @@ import com.alibaba.fastjson.*;
 
 public class plug_config {
     public String analyse_packet_name;
-    public okhttp_config okhttp;
 
     public plug_config() {
-    }
-
-    public static class okhttp_config {
-        public boolean print_stack;
     }
 
     public static plug_config load_plug_config() {

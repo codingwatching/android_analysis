@@ -1,11 +1,11 @@
-//#include <jni.h>
-//#include <android/log.h>
+#include <jni.h>
+#include <android/log.h>
 //#include <string>
 //#include <map>
 //#include <atomic>
 //
 //
-//#include "utils/log.h"
+#include "utils/log.h"
 //#include "utils/utils.h"
 //#include "utils/str_helper.h"
 //#include "utils/jni_helper.h"
@@ -176,14 +176,10 @@
 ////    init_other_hook();
 ////}
 //
-////JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
-////    g_vm = vm;
-////    g_reserved = reserved;
-////    JNIEnv *env;
-////    vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION_1_6);
-//////    init_global_hook_jni_env(env);
-////    return JNI_VERSION_1_6;
-////}
+JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+
+    return JNI_VERSION_1_6;
+}
 //
 ////JNIEXPORT void JNICALL
 ////JNI_OnUnLoad(JavaVM *jvm, void *reserved) {

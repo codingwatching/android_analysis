@@ -173,14 +173,16 @@ void init_jni_hook(JNIEnv *env, elf_info *tar_module, const char *module_name) {
              item.method_name.c_str(),
              (int64_t) item.addr - (int64_t) g_tar_module->load_addr);
         unsigned char *shell_code = create_shellcode_hooking_func(hook_native_func, &item);
-        DobbyHook(item.addr, shell_code, &item.origin_call);
+        DobbyHook(item.addr, (dobby_dummy_func_t) shell_code,
+                  (dobby_dummy_func_t *) &item.origin_call);
 //        xhook_register(module_name, item.sym_name.c_str(), shell_code, &item.origin_call);
     }
 
     logi("%s", "to hook JNI_OnLoad, and fake java vm");
     void *jni_onload_ptr = get_jni_onload_ptr(tar_module);
     if (jni_onload_ptr) {
-        DobbyHook(jni_onload_ptr, (void *) &hook_jni_onload, &origin_jni_onload_ptr);
+        DobbyHook(jni_onload_ptr, (dobby_dummy_func_t) &hook_jni_onload,
+                  (dobby_dummy_func_t *) &origin_jni_onload_ptr);
 //        xhook_register(module_name, "JNI_OnLoad", (void *) &hook_jni_onload,
 //                       &origin_jni_onload_ptr);
     } else {
