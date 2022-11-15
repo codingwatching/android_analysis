@@ -1,24 +1,24 @@
-#ifndef INTERCEPT_ROUTING_H
-#define INTERCEPT_ROUTING_H
+#pragma once
 
-#include "Interceptor.h"
+#include "InterceptEntry.h"
 #include "MemoryAllocator/AssemblyCodeBuilder.h"
-
-extern CodeBufferBase *GenerateNormalTrampolineBuffer(addr_t from, addr_t to);
-
-extern void GenRelocateCodeAndBranch(void *buffer, AssemblyCodeChunk *origin, AssemblyCodeChunk *relocated);
+#include "InstructionRelocation/InstructionRelocation.h"
+#include "TrampolineBridge/Trampoline/Trampoline.h"
 
 class InterceptRouting {
 public:
-  InterceptRouting(HookEntry *entry) : entry_(entry) {
-    entry->route = this;
+  explicit InterceptRouting(InterceptEntry *entry) : entry_(entry) {
+    entry->routing = this;
 
-    trampoline_        = NULL;
-    trampoline_buffer_ = NULL;
-    trampoline_target_ = NULL;
+    origin_ = nullptr;
+    relocated_ = nullptr;
+
+    trampoline_ = nullptr;
+    trampoline_buffer_ = nullptr;
+    trampoline_target_ = 0;
   }
 
-  virtual void Dispatch() = 0;
+  virtual void DispatchRouting() = 0;
 
   virtual void Prepare();
 
@@ -26,11 +26,7 @@ public:
 
   void Commit();
 
-  HookEntry *GetHookEntry();
-
-  void GenerateRelocatedCode();
-
-  void GenerateTrampolineBuffer(void *src, void *dst);
+  InterceptEntry *GetInterceptEntry();
 
   void SetTrampolineBuffer(CodeBufferBase *buffer) {
     trampoline_buffer_ = buffer;
@@ -40,26 +36,27 @@ public:
     return trampoline_buffer_;
   }
 
-  void SetTrampolineTarget(void *address) {
+  void SetTrampolineTarget(addr_t address) {
     trampoline_target_ = address;
   }
 
-  void *GetTrampolineTarget() {
+  addr_t GetTrampolineTarget() {
     return trampoline_target_;
   }
 
 protected:
-  HookEntry *entry_;
+  bool GenerateRelocatedCode();
 
-  AssemblyCodeChunk *origin_;
+  bool GenerateTrampolineBuffer(addr_t src, addr_t dst);
 
-  AssemblyCodeChunk *relocated_;
+protected:
+  InterceptEntry *entry_;
 
-  AssemblyCodeChunk *trampoline_;
+  CodeMemBlock *origin_;
+  CodeMemBlock *relocated_;
 
+  CodeMemBlock *trampoline_;
   // trampoline buffer before active
   CodeBufferBase *trampoline_buffer_;
-
-  void *trampoline_target_;
+  addr_t trampoline_target_;
 };
-#endif

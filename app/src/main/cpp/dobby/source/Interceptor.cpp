@@ -1,61 +1,40 @@
 #include "Interceptor.h"
 
-#include "dobby_internal.h"
+Interceptor *Interceptor::instance = nullptr;
 
-Interceptor *      Interceptor::priv_interceptor_ = nullptr;
-
-Interceptor *Interceptor::SharedInstance() { 
-  if (Interceptor::priv_interceptor_ == NULL) {
-    Interceptor::priv_interceptor_          = new Interceptor();
-    INIT_LIST_HEAD(&Interceptor::priv_interceptor_->hook_entry_list_);
+Interceptor *Interceptor::SharedInstance() {
+  if (Interceptor::instance == nullptr) {
+    Interceptor::instance = new Interceptor();
   }
-  return Interceptor::priv_interceptor_;
+  return Interceptor::instance;
 }
 
-HookEntryListNode *Interceptor::FindHookEntryNode(void *address) {
-  HookEntry *entry = NULL;
-
-  struct list_head *node  = NULL;
-  for (node = hook_entry_list_.next;  node != &hook_entry_list_; node = node->next) {
-    if(((HookEntryListNode *)node)->info.target_address == address) {
-      return (HookEntryListNode *)node;
+InterceptEntry *Interceptor::find(addr_t addr) {
+  for (auto *entry : entries) {
+    if (entry->patched_addr == addr) {
+      return entry;
     }
   }
-
-  return NULL;
+  return nullptr;
 }
 
-HookEntry *Interceptor::FindHookEntry(void *address) {
-  HookEntryListNode *node = NULL;
-  node = FindHookEntryNode(address);
-  if(node)
-    return &node->info;
-
-  return NULL;
+void Interceptor::add(InterceptEntry *entry) {
+  entries.push_back(entry);
 }
 
-
-
-void Interceptor::AddHookEntry(HookEntry *entry) {
-  HookEntryListNode *node = new HookEntryListNode ;
-  node->info = *entry;
-  list_add((struct list_head *)node, &hook_entry_list_);
-}
-
-void Interceptor::RemoveHookEntry(void *address) {
-  HookEntryListNode *node = NULL;
-  node = FindHookEntryNode(address);
-  if(node) {
-    list_del((struct list_head *)node);
+void Interceptor::remove(addr_t addr) {
+  for (auto iter = entries.begin(); iter != entries.end(); iter++) {
+    if ((*iter)->patched_addr == addr) {
+      entries.erase(iter);
+      break;
+    }
   }
 }
 
-int Interceptor::GetHookEntryCount() {
-  int count = 0;
+const InterceptEntry *Interceptor::getEntry(int i) {
+  return entries[i];
+}
 
-  struct list_head *node  = &hook_entry_list_;
-  while((node = node->next) != &hook_entry_list_) {
-    count += 1;
-  }
-  return count;
+int Interceptor::count() {
+  return entries.size();
 }

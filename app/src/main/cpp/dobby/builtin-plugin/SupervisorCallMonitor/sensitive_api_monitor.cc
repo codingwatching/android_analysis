@@ -5,13 +5,13 @@
 #include <sys/syscall.h>
 
 #include "SupervisorCallMonitor/supervisor_call_monitor.h"
-#include "external-helper/async_logger.h"
+#include "misc-helper/async_logger.h"
 
 #define PT_DENY_ATTACH 31
 
-static void sensitive_api_handler(RegisterContext *ctx, const HookEntryInfo *info) {
+static void sensitive_api_handler(DobbyRegisterContext *ctx, const InterceptEntry *info) {
   char buffer[256] = {0};
-  int  syscall_rum = ctx->general.regs.x16;
+  int syscall_rum = ctx->general.regs.x16;
   if (syscall_rum == 0) {
     syscall_rum = (int)ctx->general.x[0];
     if (syscall_rum == SYS_ptrace) {
@@ -54,7 +54,7 @@ static int get_func_svc_offset(addr_t func_addr) {
 __typeof(sysctl) *orig_sysctl;
 int fake_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen) {
   struct kinfo_proc *info = NULL;
-  int                ret  = orig_sysctl(name, namelen, oldp, oldlenp, newp, newlen);
+  int ret = orig_sysctl(name, namelen, oldp, oldlenp, newp, newlen);
   if (name[0] == CTL_KERN && name[1] == KERN_PROC && name[2] == KERN_PROC_PID) {
     info = (struct kinfo_proc *)oldp;
     info->kp_proc.p_flag &= ~(P_TRACED);
@@ -63,8 +63,8 @@ int fake_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *new
 }
 
 void supervisor_call_monitor_register_sensitive_api_handler() {
-  char * sensitive_func_array[] = {"ptrace", "exit"};
-  size_t count                  = sizeof(sensitive_func_array) / sizeof(char *);
+  char *sensitive_func_array[] = {"ptrace", "exit"};
+  size_t count = sizeof(sensitive_func_array) / sizeof(char *);
   for (size_t i = 0; i < count; i++) {
 
     addr_t func_addr = 0;

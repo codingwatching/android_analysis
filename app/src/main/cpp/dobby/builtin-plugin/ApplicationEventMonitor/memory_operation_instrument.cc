@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static uintptr_t getCallFirstArg(RegisterContext *ctx) {
+static uintptr_t getCallFirstArg(DobbyRegisterContext *ctx) {
   uintptr_t result;
 #if defined(_M_X64) || defined(__x86_64__)
 #if defined(_WIN32)
@@ -33,15 +33,15 @@ void format_integer_manually(char *buf, uint64_t integer) {
 // [ATTENTION]:
 // printf will call 'malloc' internally, and will crash in a loop.
 // so, use 'puts' is a better choice.
-void malloc_handler(RegisterContext *ctx, const HookEntryInfo *info) {
-  size_t size_  = 0;
-  size_         = getCallFirstArg(ctx);
+void malloc_handler(DobbyRegisterContext *ctx, const InterceptEntry *info) {
+  size_t size_ = 0;
+  size_ = getCallFirstArg(ctx);
   char *buffer_ = (char *)"[-] function malloc first arg: 0x00000000.\n";
   format_integer_manually(strchr(buffer_, '.') - 1, size_);
   puts(buffer_);
 }
 
-void free_handler(RegisterContext *ctx, const HookEntryInfo *info) {
+void free_handler(DobbyRegisterContext *ctx, const InterceptEntry *info) {
   uintptr_t mem_ptr;
 
   mem_ptr = getCallFirstArg(ctx);
