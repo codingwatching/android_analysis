@@ -34,7 +34,7 @@ chinglish document
 ```
 4. trace all java2c, c2java jni call log
   put libnative_hook.so  in /data/app , and chmod 777,  use project/frida/analyse.js to inject it in your target app
-  other:
+  and do this before:
   write your target packet name on packet_name
   write your target trace lib name on target_name
   
