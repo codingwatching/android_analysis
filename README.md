@@ -3,7 +3,7 @@ chinglish document
 ## how to build
 
  ```
- android studio build
+ android studio build , must debug, some bug in release that dobby dont work 
  
  tools lib will in app/libs/arm64-v8a
  
